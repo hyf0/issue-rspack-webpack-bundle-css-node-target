@@ -14,8 +14,12 @@ if (!isRunningRspack && !isRunningWebpack) {
 const config = {
   mode: "development",
   devtool: false,
+  target: 'node',
   entry: {
     main: "./src/index.js",
+  },
+  experiments: {
+    ...(isRunningWebpack ? ({ css: true }): {})
   },
   module: {
     rules: [
@@ -27,16 +31,30 @@ const config = {
     ],
   },
   output: {
+    clean: true,
     path: isRunningWebpack
       ? path.resolve(__dirname, "webpack-dist")
       : path.resolve(__dirname, "rspack-dist"),
-    filename: "main.js",
+    filename: "[id].js",
   },
   resolve: {
     alias: {
       "./answer": path.resolve(__dirname, "./src/answer.js?raw"),
     },
   },
+  optimization: {
+    splitChunks: {
+      minSize: 1,
+      cacheGroups: {
+        foo: {
+          chunks: "all",
+					name: "split_foo",
+					test: /foo\.js$/,
+					priority: 99
+        }
+      }
+    }
+  }
 };
 
 export default config;
